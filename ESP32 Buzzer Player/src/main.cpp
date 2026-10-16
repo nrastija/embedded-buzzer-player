@@ -1,8 +1,10 @@
 #include <Keypad.h>
+#include "../lib/audio.h"
+
 #include "../lib/rickroll.h"
 #include "../lib/sf2_guile.h"
 #include "../lib/pirates.h"
-#include "../lib/audio.h"
+#include "../lib/sf2_ken.h"
 
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
@@ -104,7 +106,8 @@ void loop() {
         break;
       case 'A':
         colorRGBLED(0, 100, 0);
-        // placeholder for song 4
+        playSF2Ken(buzzerPin);
+        stopSF2Ken(buzzerPin);
         colorRGBLED(0, 0, 100);
         break;
       case 'B':
