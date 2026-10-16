@@ -5,6 +5,7 @@
 #include "../lib/sf2_guile.h"
 #include "../lib/pirates.h"
 #include "../lib/sf2_ken.h"
+#include "../lib/metallica_master.h"
 
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
@@ -112,7 +113,8 @@ void loop() {
         break;
       case 'B':
         colorRGBLED(0, 100, 0);
-        // placeholder for song 5
+        playMetallicaMaster(buzzerPin);
+        stopMetallicaMaster(buzzerPin);
         colorRGBLED(0, 0, 100);
         break;
       case 'C':
