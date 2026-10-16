@@ -2,6 +2,7 @@
 #include <Keypad.h>
 #include <driver/i2s.h>
 #include "../lib/rickroll.h"
+#include "../lib/audio.h"
 
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
@@ -28,8 +29,6 @@ const int redPin = 22;  // Blue LED pin
 const int buzzerPin = 33; // Buzzer pin
 const int BUZZER_CH = 4; 
 
-#define I2S_PORT I2S_NUM_0
-
 // Function prototypes
 void colorRGBLED(int red, int green, int blue);
 void playTone(int freq, int ms);
@@ -46,7 +45,7 @@ void setup() {
   // I2S configuration
   i2s_config_t cfg = {};
   cfg.mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX);
-  cfg.sample_rate = 16000;
+  cfg.sample_rate = 44100;
   cfg.bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT;
   cfg.channel_format = I2S_CHANNEL_FMT_ONLY_LEFT;
   cfg.communication_format = I2S_COMM_FORMAT_STAND_I2S;
@@ -64,6 +63,9 @@ void setup() {
 
   i2s_driver_install(I2S_PORT, &cfg, 0, NULL);
   i2s_set_pin(I2S_PORT, &pins);
+  
+  for (int i = 0; i < TABLE_SIZE; i++)
+    sineTable[i] = (int16_t)(sin(2.0 * PI * i / TABLE_SIZE) * VOLUME);
 
   for (int i=0; i<3; i++) {
     colorRGBLED(100, 100, 100); 
