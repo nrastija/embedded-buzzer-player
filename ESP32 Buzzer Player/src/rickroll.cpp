@@ -1,5 +1,7 @@
 #include <Arduino.h>
+#include <driver/i2s.h>
 #include "../lib/rickroll.h"
+#include "../lib/audio.h"
 
 
 #define NOTE_B0  31
@@ -167,7 +169,36 @@ static const int melody[] = {
 
 bool stop = false;
 
-void playRickRoll(int buzzer) {
+
+void playTone(int freq, int ms) {
+  static uint32_t phase = 0;
+  const uint32_t step = (uint32_t)(((uint64_t)freq << 32) / SAMPLE_RATE);
+  const int total = (long)SAMPLE_RATE * ms / 1000;
+  int16_t buf[64];
+  size_t written;
+
+  for (int done = 0; done < total; done += 64) {
+  int chunk = min(64, total - done);
+  for (int i = 0; i < chunk; i++) {
+    if (freq == 0) {
+      buf[i] = 0;
+    } else {
+      phase += step;
+
+      int pos = done + i;
+      int fade = SAMPLE_RATE / 200;              // 5 ms
+      int gain = 256;
+      if (pos < fade) gain = 256 * pos / fade;
+      else if (pos > total - fade) gain = 256 * (total - pos) / fade;
+
+      buf[i] = (sineTable[phase >> 24] * gain) >> 8;
+    }
+  }
+    i2s_write(I2S_PORT, buf, chunk * sizeof(int16_t), &written, portMAX_DELAY);
+  }
+}
+
+void playRickRoll(int buzzer) {   // buzzer arg is unused now, kept so callers still compile
   const int notes = sizeof(melody) / sizeof(melody[0]) / 2;
   const int wholenote = (60000 * 4) / 114;
 
@@ -186,9 +217,8 @@ void playRickRoll(int buzzer) {
       noteDuration = (wholenote / abs(divider)) * 1.5;
     }
 
-    tone(buzzer, melody[thisNote], noteDuration * 0.9);
-    delay(noteDuration);
-    noTone(buzzer);
+    playTone(melody[thisNote], noteDuration * 0.9);
+    playTone(REST, noteDuration * 0.1);
   }
 }
 
