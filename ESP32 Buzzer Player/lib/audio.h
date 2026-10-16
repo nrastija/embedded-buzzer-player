@@ -8,7 +8,7 @@
 
 #define I2S_PORT I2S_NUM_0
 
-int16_t sineTable[TABLE_SIZE];
+extern int16_t sineTable[TABLE_SIZE];
 
 void initSine();
 void initAudio();
