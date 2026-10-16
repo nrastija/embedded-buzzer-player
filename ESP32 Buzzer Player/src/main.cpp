@@ -1,8 +1,7 @@
-#include <Arduino.h>
 #include <Keypad.h>
-#include <driver/i2s.h>
 #include "../lib/rickroll.h"
 #include "../lib/sf2_guile.h"
+#include "../lib/pirates.h"
 #include "../lib/audio.h"
 
 // 4x4 Matrix Keypad configuration
@@ -34,7 +33,6 @@ int16_t sineTable[TABLE_SIZE];
 
 // Function prototypes
 void colorRGBLED(int red, int green, int blue);
-void playTone(int freq, int ms);
 void stopTone();
 
 void setup() {
@@ -87,31 +85,32 @@ void loop() {
   
     switch (key) {
       case '1':
-        colorRGBLED(0, 100, 0);
+        colorRGBLED(0, 100, 0); // red -> song is playing 
         playRickRoll(buzzerPin);
         stopRickRoll(buzzerPin);
-        colorRGBLED(0, 0, 100); 
+        colorRGBLED(0, 0, 100); // back to green -> song is stopped
         break;
       case '2':
-        colorRGBLED(0, 100, 0); // red -> song is playing 
+        colorRGBLED(0, 100, 0); 
         playSF2Guile(buzzerPin);
         stopSF2Guile(buzzerPin);
-        colorRGBLED(0, 0, 100); // back to green -> song is stopped
+        colorRGBLED(0, 0, 100); 
         break;
       case '3':
         colorRGBLED(0, 100, 0);
-        // placeholder for song 3
-        colorRGBLED(0, 100, 0);
+        playPirates(buzzerPin);
+        stopPirates(buzzerPin);
+        colorRGBLED(0, 0, 100);
         break;
       case 'A':
         colorRGBLED(0, 100, 0);
         // placeholder for song 4
-        colorRGBLED(0, 100, 0);
+        colorRGBLED(0, 0, 100);
         break;
       case 'B':
         colorRGBLED(0, 100, 0);
         // placeholder for song 5
-        colorRGBLED(0, 100, 0);
+        colorRGBLED(0, 0, 100);
         break;
       case 'C':
         colorRGBLED(0, 100, 0);
@@ -121,7 +120,7 @@ void loop() {
       case 'D':
         colorRGBLED(0, 100, 0);
         // placeholder for song 7
-        colorRGBLED(0, 100, 0);
+        colorRGBLED(0, 0, 100);
         break;
       case '*':
         stopTone();
@@ -141,12 +140,7 @@ void colorRGBLED(int green, int blue, int red) {
   analogWrite(bluePin, blue);
 }
 
-void playTone(int freq, int ms) {
-  ledcWriteTone(BUZZER_CH, freq);
-  delay(ms);
-  ledcWriteTone(BUZZER_CH, 0);   
-}
-
 void stopTone() {
-  ledcWriteTone(BUZZER_CH, 0);
+  ledcWriteTone(BUZZER_CH, 0); // Stop the tone
+  i2s_zero_dma_buffer(I2S_PORT);
 }

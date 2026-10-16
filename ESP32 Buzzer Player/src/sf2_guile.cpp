@@ -1,6 +1,4 @@
-#include <Arduino.h>
-#include <driver/i2s.h>
-#include "../lib/notes.h"
+
 #include "../lib/audio.h"
 #include "../lib/sf2_guile.h"
 
@@ -1184,7 +1182,7 @@ const uint16_t NUM_OF_NOTES4 = sizeof(melody4)/sizeof(melody4[0]);
 bool stopSF2GuilePlaying = false;
 
 
-static void loadNote(Track &t) {
+void loadNote(Track &t) {
   if (t.idx >= t.count) { t.done = true; return; }
   const Note &n = t.notes[t.idx];
   t.total = (uint64_t)SAMPLE_RATE * n.duration / 1000;
@@ -1192,13 +1190,13 @@ static void loadNote(Track &t) {
   t.step  = n.freq ? (uint32_t)(((uint64_t)n.freq << 32) / SAMPLE_RATE) : 0;
 }
 
-static void initTrack(Track &t, const Note* notes, uint16_t count) {
+void initTrack(Track &t, const Note* notes, uint16_t count) {
   t.notes = notes; t.count = count; t.idx = 0;
   t.phase = 0; t.done = false;
   loadNote(t);
 }
 
-static int16_t nextSample(Track &t) {
+int16_t nextSample(Track &t) {
   if (t.done) return 0;
 
   while (t.left == 0) {              

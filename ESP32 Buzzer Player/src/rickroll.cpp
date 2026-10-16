@@ -1,8 +1,6 @@
-#include <Arduino.h>
-#include <driver/i2s.h>
-#include "../lib/rickroll.h"
+
 #include "../lib/audio.h"
-#include "../lib/notes.h"
+#include "../lib/rickroll.h"
 
 int tempo = 114;
 
@@ -79,8 +77,7 @@ static const int melody[] = {
 bool stopRickRollPlaying = false;
 
 
-
-void playToneRickRoll(int freq, int ms) {
+void playTone(int freq, int ms) {
   static uint32_t phase = 0;
   const uint32_t step = (uint32_t)(((uint64_t)freq << 32) / SAMPLE_RATE);
   const int total = (long)SAMPLE_RATE * ms / 1000;
@@ -127,8 +124,8 @@ void playRickRoll(int buzzer) {
       noteDuration = (wholenote / abs(divider)) * 1.5;
     }
 
-    playToneRickRoll(melody[thisNote], noteDuration * 0.9);
-    playToneRickRoll(REST, noteDuration * 0.1);
+    playTone(melody[thisNote], noteDuration * 0.9);
+    playTone(REST, noteDuration * 0.1);
   }
 }
 
