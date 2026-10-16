@@ -1,4 +1,7 @@
 #include <Keypad.h>
+#include <SPI.h>
+#include <TFT_eSPI.h> 
+
 #include "../lib/audio.h"
 
 #include "../lib/rickroll.h"
@@ -6,6 +9,7 @@
 #include "../lib/pirates.h"
 #include "../lib/sf2_ken.h"
 #include "../lib/metallica_master.h"
+#include "../lib/trooper.h"
 
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
@@ -32,7 +36,10 @@ const int redPin = 22;  // Blue LED pin
 const int buzzerPin = 33; // Buzzer pin
 const int BUZZER_CH = 4; 
 
+// Sine wave table configuration
 int16_t sineTable[TABLE_SIZE];
+
+TFT_eSPI tft; // Invoke library
 
 // Function prototypes
 void colorRGBLED(int red, int green, int blue);
@@ -70,6 +77,15 @@ void setup() {
   
   for (int i = 0; i < TABLE_SIZE; i++)
     sineTable[i] = (int16_t)(sin(2.0 * PI * i / TABLE_SIZE) * VOLUME);
+
+  // screen configuration
+  tft.init();
+  tft.setRotation(1);
+  tft.fillScreen(TFT_WHITE);
+  tft.setTextColor(TFT_RED, TFT_WHITE);
+  tft.setTextSize(2);
+  tft.setCursor(10, 10);
+  tft.println("ESP32 Buzzer Player");
 
   for (int i=0; i<3; i++) {
     colorRGBLED(100, 100, 100); 
@@ -119,7 +135,8 @@ void loop() {
         break;
       case 'C':
         colorRGBLED(0, 100, 0);
-        // placeholder for song 6
+        playTrooper(buzzerPin);
+        stopTrooper(buzzerPin);
         colorRGBLED(0, 100, 0);
         break;
       case 'D':
