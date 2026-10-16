@@ -91,6 +91,52 @@
 #define NOTE_REST 0
 #define REST 0
 
+// flat aliases
+#define NOTE_DB1 NOTE_CS1
+#define NOTE_EB1 NOTE_DS1
+#define NOTE_GB1 NOTE_FS1
+#define NOTE_AB1 NOTE_GS1
+#define NOTE_BB1 NOTE_AS1
+
+#define NOTE_DB2 NOTE_CS2
+#define NOTE_EB2 NOTE_DS2
+#define NOTE_GB2 NOTE_FS2
+#define NOTE_AB2 NOTE_GS2
+#define NOTE_BB2 NOTE_AS2
+
+#define NOTE_DB3 NOTE_CS3
+#define NOTE_EB3 NOTE_DS3
+#define NOTE_GB3 NOTE_FS3
+#define NOTE_AB3 NOTE_GS3
+#define NOTE_BB3 NOTE_AS3
+
+#define NOTE_DB4 NOTE_CS4
+#define NOTE_EB4 NOTE_DS4
+#define NOTE_GB4 NOTE_FS4
+#define NOTE_AB4 NOTE_GS4
+#define NOTE_BB4 NOTE_AS4
+
+#define NOTE_DB5 NOTE_CS5
+#define NOTE_EB5 NOTE_DS5
+#define NOTE_GB5 NOTE_FS5
+#define NOTE_AB5 NOTE_GS5
+#define NOTE_BB5 NOTE_AS5
+
+#define NOTE_DB6 NOTE_CS6
+#define NOTE_EB6 NOTE_DS6
+#define NOTE_GB6 NOTE_FS6
+#define NOTE_AB6 NOTE_GS6
+#define NOTE_BB6 NOTE_AS6
+
+#define NOTE_DB7 NOTE_CS7
+#define NOTE_EB7 NOTE_DS7
+#define NOTE_GB7 NOTE_FS7
+#define NOTE_AB7 NOTE_GS7
+#define NOTE_BB7 NOTE_AS7
+
+#define NOTE_DB8 NOTE_CS8
+#define NOTE_EB8 NOTE_DS8
+
 struct Note {
   uint16_t freq;       // Hz, 0 = rest
   uint16_t duration;   // milliseconds
