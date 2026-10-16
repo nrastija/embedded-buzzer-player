@@ -2,6 +2,7 @@
 #include <Keypad.h>
 #include <driver/i2s.h>
 #include "../lib/rickroll.h"
+#include "../lib/sf2_guile.h"
 #include "../lib/audio.h"
 
 // 4x4 Matrix Keypad configuration
@@ -28,6 +29,8 @@ const int redPin = 22;  // Blue LED pin
 // Buzzer configuration
 const int buzzerPin = 33; // Buzzer pin
 const int BUZZER_CH = 4; 
+
+int16_t sineTable[TABLE_SIZE];
 
 // Function prototypes
 void colorRGBLED(int red, int green, int blue);
@@ -73,36 +76,52 @@ void setup() {
     colorRGBLED(0, 0, 0);
     delay(500);
   }
+
+  colorRGBLED(0, 0, 100);
 }
 
 void loop() {
   char key = keypad.getKey();
 
   if (key) {
-    
+  
     switch (key) {
       case '1':
-        //play buzzer sound
+        colorRGBLED(0, 100, 0);
         playRickRoll(buzzerPin);
         stopRickRoll(buzzerPin);
+        colorRGBLED(0, 0, 100); 
         break;
       case '2':
-        colorRGBLED(0, 255, 0); // Green
+        colorRGBLED(0, 100, 0); // red -> song is playing 
+        playSF2Guile(buzzerPin);
+        stopSF2Guile(buzzerPin);
+        colorRGBLED(0, 0, 100); // back to green -> song is stopped
         break;
       case '3':
-        colorRGBLED(0, 0, 255); // Blue
+        colorRGBLED(0, 100, 0);
+        // placeholder for song 3
+        colorRGBLED(0, 100, 0);
         break;
       case 'A':
-        colorRGBLED(255, 255, 0); // Yellow
+        colorRGBLED(0, 100, 0);
+        // placeholder for song 4
+        colorRGBLED(0, 100, 0);
         break;
       case 'B':
-        colorRGBLED(0, 255, 255); // Cyan
+        colorRGBLED(0, 100, 0);
+        // placeholder for song 5
+        colorRGBLED(0, 100, 0);
         break;
       case 'C':
-        colorRGBLED(255, 0, 255); // Magenta
+        colorRGBLED(0, 100, 0);
+        // placeholder for song 6
+        colorRGBLED(0, 100, 0);
         break;
       case 'D':
-        colorRGBLED(255, 255, 255); // White
+        colorRGBLED(0, 100, 0);
+        // placeholder for song 7
+        colorRGBLED(0, 100, 0);
         break;
       case '*':
         stopTone();
@@ -116,7 +135,7 @@ void loop() {
 }
 
 // Function declarations
-void colorRGBLED(int red, int green, int blue) {
+void colorRGBLED(int green, int blue, int red) {
   analogWrite(redPin, red);
   analogWrite(greenPin, green);
   analogWrite(bluePin, blue);
@@ -125,7 +144,7 @@ void colorRGBLED(int red, int green, int blue) {
 void playTone(int freq, int ms) {
   ledcWriteTone(BUZZER_CH, freq);
   delay(ms);
-  ledcWriteTone(BUZZER_CH, 0);   // stop
+  ledcWriteTone(BUZZER_CH, 0);   
 }
 
 void stopTone() {
