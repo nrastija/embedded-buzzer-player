@@ -10,6 +10,7 @@
 #include "../lib/sf2_ken.h"
 #include "../lib/metallica_master.h"
 #include "../lib/trooper.h"
+#include "../lib/unravel.h"
 
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
@@ -28,9 +29,9 @@ byte colPins[COLS] = {26, 27, 18, 19}; // Column pins on ESP32
 Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 // RGB LED configuration
-const int bluePin = 23;   // Red LED pin
+const int bluePin = 35;   // Red LED pin
 const int greenPin = 21; // Green LED pin
-const int redPin = 22;  // Blue LED pin
+const int redPin = 34;  // Blue LED pin
 
 // Buzzer configuration
 const int buzzerPin = 33; // Buzzer pin
@@ -141,7 +142,8 @@ void loop() {
         break;
       case 'D':
         colorRGBLED(0, 100, 0);
-        // placeholder for song 7
+        playPaperWings(buzzerPin);
+        stopPaperWings(buzzerPin);
         colorRGBLED(0, 0, 100);
         break;
       case '*':
