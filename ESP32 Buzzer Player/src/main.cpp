@@ -2,8 +2,11 @@
 #include <SPI.h>
 #include <TFT_eSPI.h> 
 
+// included once (key includes)
 #include "../lib/audio.h"
+#include "../lib/tft_screen.h"
 
+// includes for songs
 #include "../lib/rickroll.h"
 #include "../lib/sf2_guile.h"
 #include "../lib/pirates.h"
@@ -42,22 +45,6 @@ int16_t sineTable[TABLE_SIZE];
 TFT_eSPI tft;
 TFT_eSprite scr(&tft);   
 
-#define COL_BG     TFT_BLACK
-#define COL_ACCENT TFT_CYAN
-#define COL_TEXT   TFT_WHITE
-#define COL_SUB    TFT_DARKGREY
-
-
-struct Song {
-  char key;
-  const char* menu;
-  const char* l1;
-  const char* l2;
-  const char* artist;
-  void (*play)(int);
-  void (*stop)(int);
-};
-
 // Songs for TFT display
 const Song songNames[] = {
   { '1', "Never Gonna Give You Up", "Never Gonna",    "Give You Up", "Rick Astley",      playRickRoll,        stopRickRoll        },
@@ -67,6 +54,7 @@ const Song songNames[] = {
   { 'B', "Master of Puppets",       "Master of",      "Puppets",     "Metallica",        playMetallicaMaster, stopMetallicaMaster },
   { 'C', "The Trooper (IM)",        "The Trooper",    "",            "Iron Maiden",      playTrooper,         stopTrooper         },
 };
+
 
 const int song_count = sizeof(songNames) / sizeof(songNames[0]);
 
