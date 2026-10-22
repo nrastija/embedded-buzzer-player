@@ -4,8 +4,8 @@
 #include <driver/i2s.h>
 #include "../lib/notes.h"
 
-#define SAMPLE_RATE  44100      // or 16000, must match initAudio()
-#define VOLUME       3000
+#define SAMPLE_RATE  44100      
+#define VOLUME       10000
 #define TABLE_SIZE   256
 
 #define I2S_PORT I2S_NUM_0
