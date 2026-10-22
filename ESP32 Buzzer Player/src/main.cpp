@@ -29,9 +29,7 @@ byte colPins[COLS] = {26, 27, 18, 19}; // Column pins on ESP32
 Keypad keypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 // RGB LED configuration
-const int bluePin = 35;   // Red LED pin
-const int greenPin = 21; // Green LED pin
-const int redPin = 34;  // Blue LED pin
+const int bluePin = 21; // Blue LED pin
 
 // Buzzer configuration
 const int buzzerPin = 33; // Buzzer pin
@@ -40,11 +38,47 @@ const int BUZZER_CH = 4;
 // Sine wave table configuration
 int16_t sineTable[TABLE_SIZE];
 
-TFT_eSPI tft; // Invoke library
+// TFT display configuration
+TFT_eSPI tft;
+TFT_eSprite scr(&tft);   
+
+#define COL_BG     TFT_BLACK
+#define COL_ACCENT TFT_CYAN
+#define COL_TEXT   TFT_WHITE
+#define COL_SUB    TFT_DARKGREY
+
+
+struct Song {
+  char key;
+  const char* menu;
+  const char* l1;
+  const char* l2;
+  const char* artist;
+  void (*play)(int);
+  void (*stop)(int);
+};
+
+// Songs for TFT display
+const Song songNames[] = {
+  { '1', "Never Gonna Give You Up", "Never Gonna",    "Give You Up", "Rick Astley",      playRickRoll,        stopRickRoll        },
+  { '2', "Guile Theme (SF2)",       "Guiles Theme",    "",            "Street Fighter II", playSF2Guile,        stopSF2Guile        },
+  { '3', "He's a Pirate",           "He's a Pirate",  "",            "Pirates of the Caribbean", playPirates,  stopPirates         },
+  { 'A', "Ken Theme (SF2)",         "Kens Theme",      "",            "Street Fighter II", playSF2Ken,          stopSF2Ken          },
+  { 'B', "Master of Puppets",       "Master of",      "Puppets",     "Metallica",        playMetallicaMaster, stopMetallicaMaster },
+  { 'C', "The Trooper (IM)",        "The Trooper",    "",            "Iron Maiden",      playTrooper,         stopTrooper         },
+};
+
+const int song_count = sizeof(songNames) / sizeof(songNames[0]);
 
 // Function prototypes
-void colorRGBLED(int red, int green, int blue);
+void colorLEDStable(int blue);
 void stopTone();
+
+int  songIndexForKey(char key);
+void drawMenu();
+void drawNowPlaying(int idx);
+void stopTone();
+
 
 void setup() {
   Serial.begin(115200);
@@ -81,76 +115,71 @@ void setup() {
 
   // screen configuration
   tft.init();
-  tft.setRotation(1);
-  tft.fillScreen(TFT_WHITE);
-  tft.setTextColor(TFT_RED, TFT_WHITE);
-  tft.setTextSize(2);
-  tft.setCursor(10, 10);
-  tft.println("ESP32 Buzzer Player");
+  tft.setRotation(1);        
+  scr.createSprite(160, 128); 
+
+  drawMenu();
 
   for (int i=0; i<3; i++) {
-    colorRGBLED(100, 100, 100); 
+    colorLEDStable(100); 
     delay(500);
-    colorRGBLED(0, 0, 0);
+    colorLEDStable(0);
     delay(500);
   }
 
-  colorRGBLED(0, 0, 100);
+  colorLEDStable(100);
 }
 
 void loop() {
   char key = keypad.getKey();
 
   if (key) {
-  
     switch (key) {
       case '1':
-        colorRGBLED(0, 100, 0); // red -> song is playing 
+        drawNowPlaying(0);
         playRickRoll(buzzerPin);
         stopRickRoll(buzzerPin);
-        colorRGBLED(0, 0, 100); // back to green -> song is stopped
         break;
       case '2':
-        colorRGBLED(0, 100, 0); 
+        drawNowPlaying(1);
         playSF2Guile(buzzerPin);
         stopSF2Guile(buzzerPin);
-        colorRGBLED(0, 0, 100); 
         break;
       case '3':
-        colorRGBLED(0, 100, 0);
+        drawNowPlaying(2);
         playPirates(buzzerPin);
         stopPirates(buzzerPin);
-        colorRGBLED(0, 0, 100);
+        drawMenu();
         break;
       case 'A':
-        colorRGBLED(0, 100, 0);
+        drawNowPlaying(3);
         playSF2Ken(buzzerPin);
         stopSF2Ken(buzzerPin);
-        colorRGBLED(0, 0, 100);
+        drawMenu();
         break;
       case 'B':
-        colorRGBLED(0, 100, 0);
+        drawNowPlaying(4);
         playMetallicaMaster(buzzerPin);
         stopMetallicaMaster(buzzerPin);
-        colorRGBLED(0, 0, 100);
+        drawMenu();
         break;
       case 'C':
-        colorRGBLED(0, 100, 0);
+        drawNowPlaying(5);
         playTrooper(buzzerPin);
         stopTrooper(buzzerPin);
-        colorRGBLED(0, 100, 0);
+        drawMenu();
         break;
       case 'D':
-        colorRGBLED(0, 100, 0);
+        drawNowPlaying(6);
         playPaperWings(buzzerPin);
         stopPaperWings(buzzerPin);
-        colorRGBLED(0, 0, 100);
+        drawMenu();
         break;
       case '*':
         stopTone();
         break;
       default:
-        colorRGBLED(0, 0, 0); // Off
+        colorLEDStable(0); // Off
         break;
     }
   }
@@ -158,13 +187,80 @@ void loop() {
 }
 
 // Function declarations
-void colorRGBLED(int green, int blue, int red) {
-  analogWrite(redPin, red);
-  analogWrite(greenPin, green);
+void colorLEDStable(int blue) {
   analogWrite(bluePin, blue);
 }
 
+int songIndexForKey(char key) {
+  for (int i = 0; i < song_count; i++)
+    if (songNames[i].key == key) return i;
+  return -1;
+}
+
+void drawMenu() {
+  scr.fillSprite(COL_BG);
+
+  scr.fillRoundRect(0, 0, 160, 28, 5, COL_ACCENT);
+  scr.setTextDatum(MC_DATUM);
+  scr.setTextColor(COL_BG, COL_ACCENT);
+  scr.setTextFont(2);                 
+  scr.drawString("ESP32 Buzzer Player", 80, 14);
+
+  const int ROW_Y0  = 32;
+  const int ROW_H   = 14;
+  const int BADGE_W  = 16;
+
+  for (int i = 0; i < song_count; i++) {
+    int y = ROW_Y0 + i * ROW_H;
+
+    // key badge
+    scr.fillRoundRect(3, y + 1, BADGE_W, ROW_H - 3, 3, COL_ACCENT);
+    scr.setTextColor(COL_BG, COL_ACCENT);
+    scr.setTextFont(1);
+    scr.setTextDatum(MC_DATUM);
+    char badge[2] = { songNames[i].key, 0 };
+    scr.drawString(badge, 3 + BADGE_W / 2, y + ROW_H / 2);
+
+    // song title
+    scr.setTextColor(COL_TEXT, COL_BG);
+    scr.setTextDatum(ML_DATUM);
+    scr.drawString(songNames[i].menu, 22, y + ROW_H / 2);
+  }
+
+  // footer
+  scr.setTextColor(COL_SUB, COL_BG);
+  scr.setTextDatum(MC_DATUM);
+  scr.setTextFont(1);
+  scr.drawString("key: A-F : play | * : stop", 80, 122);
+ 
+  scr.pushSprite(0, 0);               
+}
+
+void drawNowPlaying(int idx) {
+  scr.fillSprite(COL_BG);
+  scr.setTextDatum(MC_DATUM);
+
+  scr.setTextColor(COL_ACCENT);
+  scr.setTextFont(4);                 
+  scr.drawString("\xEF\xBF\xAE", 80, 30);  
+
+  // song title
+  scr.setTextDatum(7);
+  scr.setTextColor(COL_SUB);
+  scr.setTextFont(1);
+  scr.drawString("NOW PLAYING:", 80, 16);
+  scr.drawString(songNames[idx].l1, 80, 54);
+  if (songNames[idx].l2[0] != 0)
+    scr.drawString(songNames[idx].l2, 80, 66);
+
+  // artist
+  scr.drawString(songNames[idx].artist, 80, 90);
+
+  scr.pushSprite(0, 0);
+}
+
 void stopTone() {
-  ledcWriteTone(BUZZER_CH, 0); // Stop the tone
+  ledcWriteTone(BUZZER_CH, 0); 
   i2s_zero_dma_buffer(I2S_PORT);
 }
+
