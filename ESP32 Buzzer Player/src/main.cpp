@@ -13,7 +13,6 @@
 #include "../lib/sf2_ken.h"
 #include "../lib/metallica_master.h"
 #include "../lib/trooper.h"
-#include "../lib/unravel.h"
 
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
@@ -52,11 +51,12 @@ const Song songNames[] = {
   { '3', "He's a Pirate",           "He's a Pirate",  "",            "Pirates of the Caribbean", playPirates,  stopPirates         },
   { 'A', "Ken Theme (SF2)",         "Kens Theme",      "",            "Street Fighter II", playSF2Ken,          stopSF2Ken          },
   { 'B', "Master of Puppets",       "Master of",      "Puppets",     "Metallica",        playMetallicaMaster, stopMetallicaMaster },
-  { 'C', "The Trooper (IM)",        "The Trooper",    "",            "Iron Maiden",      playTrooper,         stopTrooper         },
+  { 'C', "The Trooper",        "The Trooper",    "",            "Iron Maiden",      playTrooper,         stopTrooper         },
 };
 
 
 const int song_count = sizeof(songNames) / sizeof(songNames[0]);
+volatile bool stopRequested = false;
 
 // Function prototypes
 void colorLEDStable(int blue);
@@ -65,7 +65,8 @@ void stopTone();
 int  songIndexForKey(char key);
 void drawMenu();
 void drawNowPlaying(int idx);
-void stopTone();
+void finishPlayback();
+
 
 
 void setup() {
@@ -120,59 +121,17 @@ void setup() {
 
 void loop() {
   char key = keypad.getKey();
+  if (!key) return;
 
-  if (key) {
-    switch (key) {
-      case '1':
-        drawNowPlaying(0);
-        playRickRoll(buzzerPin);
-        stopRickRoll(buzzerPin);
-        break;
-      case '2':
-        drawNowPlaying(1);
-        playSF2Guile(buzzerPin);
-        stopSF2Guile(buzzerPin);
-        break;
-      case '3':
-        drawNowPlaying(2);
-        playPirates(buzzerPin);
-        stopPirates(buzzerPin);
-        drawMenu();
-        break;
-      case 'A':
-        drawNowPlaying(3);
-        playSF2Ken(buzzerPin);
-        stopSF2Ken(buzzerPin);
-        drawMenu();
-        break;
-      case 'B':
-        drawNowPlaying(4);
-        playMetallicaMaster(buzzerPin);
-        stopMetallicaMaster(buzzerPin);
-        drawMenu();
-        break;
-      case 'C':
-        drawNowPlaying(5);
-        playTrooper(buzzerPin);
-        stopTrooper(buzzerPin);
-        drawMenu();
-        break;
-      case 'D':
-        drawNowPlaying(6);
-        playPaperWings(buzzerPin);
-        stopPaperWings(buzzerPin);
-        drawMenu();
-        break;
-      case '*':
-        stopTone();
-        break;
-      default:
-        colorLEDStable(0); // Off
-        break;
-    }
-  }
+  int idx = songIndexForKey(key);
+  if (idx < 0) return;                  
 
+  stopRequested = false;
+  drawNowPlaying(idx);
+  songNames[idx].play(buzzerPin);       
+  finishPlayback();
 }
+
 
 // Function declarations
 void colorLEDStable(int blue) {
@@ -247,8 +206,23 @@ void drawNowPlaying(int idx) {
   scr.pushSprite(0, 0);
 }
 
-void stopTone() {
-  ledcWriteTone(BUZZER_CH, 0); 
-  i2s_zero_dma_buffer(I2S_PORT);
+void finishPlayback() {
+
+  if (stopRequested) {
+    scr.fillSprite(COL_BG);
+    scr.setTextDatum(MC_DATUM);
+    scr.setTextColor(COL_ACCENT);
+    scr.setTextFont(2);
+    scr.drawString("Stopped", 80, 64);
+    scr.pushSprite(0, 0);
+    delay(600);
+  }
+
+  drawMenu();
+  stopRequested = false;
 }
 
+bool checkStop() {
+  if (keypad.getKey() == '*') stopRequested = true;
+  return stopRequested;
+}

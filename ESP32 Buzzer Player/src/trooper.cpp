@@ -7085,9 +7085,12 @@ void playTrooper(int buzzer) {
 
   while (true) {
     if (stopTrooperPlaying) { stopTrooperPlaying = false; break; }
+	if (stopRequested) break; 
 
     bool allDone = true;
     for (int i = 0; i < 64; i++) {
+		if (checkStop()) return;   
+
       int32_t sum = 0;
       for (int t = 0; t < 5; t++) {
         sum += nextSample(tr[t]);

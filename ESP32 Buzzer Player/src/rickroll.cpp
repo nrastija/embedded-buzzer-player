@@ -85,6 +85,7 @@ void playTone(int freq, int ms) {
   size_t written;
 
   for (int done = 0; done < total; done += 64) {
+  if (checkStop()) return;   
   int chunk = min(64, total - done);
   for (int i = 0; i < chunk; i++) {
     if (freq == 0) {
@@ -110,6 +111,7 @@ void playRickRoll(int buzzer) {
   const int wholenote = (60000 * 4) / 114;
 
   for (int thisNote = 0; thisNote < notes * 2; thisNote += 2) {
+    if (stopRequested) break; 
     if (stopRickRollPlaying) {
       stopRickRollPlaying = false;
       break;
