@@ -5,7 +5,7 @@
 #include "../lib/notes.h"
 
 #define SAMPLE_RATE  44100      
-#define VOLUME       3000
+#define VOLUME       2000 //22000
 #define TABLE_SIZE   256
 
 #define I2S_PORT I2S_NUM_0

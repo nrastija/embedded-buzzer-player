@@ -14,6 +14,8 @@
 #include "../lib/metallica_master.h"
 #include "../lib/trooper.h"
 
+#include "../lib/blue_bird.h"
+
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
 const byte COLS = 4;
@@ -45,7 +47,7 @@ TFT_eSPI tft;
 TFT_eSprite scr(&tft);   
 
 // Songs for TFT display
-const Song songNames[] = {
+const Song songNames1[] = {
   { '1', "Never Gonna Give You Up", "Never Gonna",    "Give You Up", "Rick Astley",      playRickRoll,        stopRickRoll        },
   { '2', "Guile Theme (SF2)",       "Guiles Theme",    "",            "Street Fighter II", playSF2Guile,        stopSF2Guile        },
   { '3', "He's a Pirate",           "He's a Pirate",  "",            "Pirates of the Caribbean", playPirates,  stopPirates         },
@@ -54,8 +56,17 @@ const Song songNames[] = {
   { 'C', "The Trooper",        "The Trooper",    "",            "Iron Maiden",      playTrooper,         stopTrooper         },
 };
 
+const Song songNames2[] = {
+  { '1', "Blue Bird", "Blue Bird",    "", "Ikimonogakari",      playBlueBird,        stopBlueBird        },
+  { '2', "Guile Theme (SF2)",       "Guiles Theme",    "",            "Street Fighter II", playSF2Guile,        stopSF2Guile        },
+  { '3', "He's a Pirate",           "He's a Pirate",  "",            "Pirates of the Caribbean", playPirates,  stopPirates         },
+  { 'A', "Ken Theme (SF2)",         "Kens Theme",      "",            "Street Fighter II", playSF2Ken,          stopSF2Ken          },
+  { 'B', "Master of Puppets",       "Master of",      "Puppets",     "Metallica",        playMetallicaMaster, stopMetallicaMaster },
+  { 'C', "The Trooper",        "The Trooper",    "",            "Iron Maiden",      playTrooper,         stopTrooper         },
+};
 
-const int song_count = sizeof(songNames) / sizeof(songNames[0]);
+
+const int song_count = sizeof(songNames1) / sizeof(songNames1[0]);
 volatile bool stopRequested = false;
 
 // Function prototypes
@@ -119,16 +130,26 @@ void setup() {
   colorLEDStable(100);
 }
 
+int current_list = 1;
+
 void loop() {
   char key = keypad.getKey();
   if (!key) return;
 
-  int idx = songIndexForKey(key);
+  if (key == '#') {
+    current_list = (current_list == 1) ? 2 : 1;
+    drawMenu();
+    return;
+  }
+
+  const Song* list = (current_list == 1) ? songNames1 : songNames2;
+
+  int idx = songIndexForKey(key);       
   if (idx < 0) return;                  
 
   stopRequested = false;
   drawNowPlaying(idx);
-  songNames[idx].play(buzzerPin);       
+  list[idx].play(buzzerPin);
   finishPlayback();
 }
 
@@ -140,7 +161,8 @@ void colorLEDStable(int blue) {
 
 int songIndexForKey(char key) {
   for (int i = 0; i < song_count; i++)
-    if (songNames[i].key == key) return i;
+    if (current_list == 1 && songNames1[i].key == key) return i;
+    else if (current_list == 2 && songNames2[i].key == key) return i;
   return -1;
 }
 
@@ -165,13 +187,21 @@ void drawMenu() {
     scr.setTextColor(COL_BG, COL_ACCENT);
     scr.setTextFont(1);
     scr.setTextDatum(MC_DATUM);
-    char badge[2] = { songNames[i].key, 0 };
+    char badge[2];
+    if (current_list == 1) {
+      badge[0] = songNames1[i].key;
+    } else {
+      badge[0] = songNames2[i].key;
+    }
+    badge[1] = 0;
     scr.drawString(badge, 3 + BADGE_W / 2, y + ROW_H / 2);
 
     // song title
     scr.setTextColor(COL_TEXT, COL_BG);
     scr.setTextDatum(ML_DATUM);
-    scr.drawString(songNames[i].menu, 22, y + ROW_H / 2);
+    if (current_list == 1)  scr.drawString(songNames1[i].menu, 22, y + ROW_H / 2);
+    else  scr.drawString(songNames2[i].menu, 22, y + ROW_H / 2);
+
   }
 
   // footer
@@ -196,12 +226,21 @@ void drawNowPlaying(int idx) {
   scr.setTextColor(COL_SUB);
   scr.setTextFont(1);
   scr.drawString("NOW PLAYING:", 80, 16);
-  scr.drawString(songNames[idx].l1, 80, 54);
-  if (songNames[idx].l2[0] != 0)
-    scr.drawString(songNames[idx].l2, 80, 66);
+  if (current_list == 1 ){
+    scr.drawString(songNames1[idx].l1, 80, 54);
+    if (songNames1[idx].l2[0] != 0)
+    scr.drawString(songNames1[idx].l2, 80, 66);
 
-  // artist
-  scr.drawString(songNames[idx].artist, 80, 90);
+    scr.drawString(songNames1[idx].artist, 80, 90);
+  } 
+  else {
+    scr.drawString(songNames2[idx].l1, 80, 54);
+    if (songNames2[idx].l2[0] != 0)
+    scr.drawString(songNames2[idx].l2, 80, 66);
+
+    scr.drawString(songNames2[idx].artist, 80, 90);
+
+  }
 
   scr.pushSprite(0, 0);
 }
