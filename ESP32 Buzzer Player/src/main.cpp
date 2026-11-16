@@ -15,6 +15,11 @@
 #include "../lib/trooper.h"
 
 #include "../lib/blue_bird.h"
+#include "../lib/tes_v_skyrim.h"
+#include "../lib/megalovania.h"
+#include "../lib/babyshark.h"
+#include "../lib/previse_suza.h"
+#include "../lib/mata.h"
 
 // 4x4 Matrix Keypad configuration
 const byte ROWS = 4;
@@ -57,12 +62,12 @@ const Song songNames1[] = {
 };
 
 const Song songNames2[] = {
-  { '1', "Blue Bird", "Blue Bird",    "", "Ikimonogakari",      playBlueBird,        stopBlueBird        },
-  { '2', "Guile Theme (SF2)",       "Guiles Theme",    "",            "Street Fighter II", playSF2Guile,        stopSF2Guile        },
-  { '3', "He's a Pirate",           "He's a Pirate",  "",            "Pirates of the Caribbean", playPirates,  stopPirates         },
-  { 'A', "Ken Theme (SF2)",         "Kens Theme",      "",            "Street Fighter II", playSF2Ken,          stopSF2Ken          },
-  { 'B', "Master of Puppets",       "Master of",      "Puppets",     "Metallica",        playMetallicaMaster, stopMetallicaMaster },
-  { 'C', "The Trooper",        "The Trooper",    "",            "Iron Maiden",      playTrooper,         stopTrooper         },
+  { '1', "Blue Bird", "Blue Bird ",    "Naruto :)", "Ikimonogakari",      playBlueBird,        stopBlueBird        },
+  { '2', "TES V: Skyrim",       "Skyrim ",    "Dragonborn!",            "Jeremy Soule", playTESVSkyrim,        stopTESVSkyrim        },
+  { '3', "Megalovania",           "Undertale :D",  "",            "Toby Fox", playMegalovania,  stopMegalovania        },
+  { 'A', "Previse suza u mom pivu",         "Prljavo",      "Kazaliste",            "PLATI MI PIVU", playPreviseSuza,          stopPreviseSuza          },
+  { 'B', "Mata",       "SLAVONIJA",      "Miroslav",     "Skoro",        playMata, stopMata },
+  { 'C', "Baby Shark",        "BABY SHARK",    "dooo dooo dooo doooooo",            "Pinkfong",      playBabyShark,         stopBabyShark         },
 };
 
 
